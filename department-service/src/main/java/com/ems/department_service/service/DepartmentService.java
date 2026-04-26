@@ -4,6 +4,7 @@ import com.ems.department_service.dto.DepartmentRequest;
 import com.ems.department_service.dto.DepartmentResponse;
 import com.ems.department_service.entity.Department;
 import com.ems.department_service.exception.ResourceNotFoundException;
+import com.ems.department_service.feign.EmployeeClient;
 import com.ems.department_service.repository.DepartmentRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -17,12 +18,12 @@ public class DepartmentService {
 
     private final DepartmentRepository departmentRepo;
 
-    DepartmentService(final DepartmentRepository departmentRepo){
+    DepartmentService(DepartmentRepository departmentRepo){
         this.departmentRepo = departmentRepo;
     }
 
-//    @CacheEvict(value = "departments", allEntries = true)
-    public DepartmentResponse createDepartment(final DepartmentRequest request){
+    @CacheEvict(value = "departments", allEntries = true)
+    public DepartmentResponse createDepartment(DepartmentRequest request){
 
         if (departmentRepo.existsByName(request.getName())) {
             throw new RuntimeException("Department with name '"
@@ -37,7 +38,7 @@ public class DepartmentService {
         return mapToResponse(saved);
     }
 
-//    @Cacheable(value = "departments", key = "#id")
+    @Cacheable(value = "departments", key = "#id")
     public DepartmentResponse getDepartmentById(Long id){
         Department department = departmentRepo.findById(id)
                 .orElseThrow(()-> new ResourceNotFoundException(
@@ -47,7 +48,7 @@ public class DepartmentService {
         return mapToResponse(department);
     }
 
-//    @Cacheable(value = "departments", key = "'all'")
+    @Cacheable(value = "departments", key = "'all'")
     public List<DepartmentResponse> getAllDepartment(){
         return departmentRepo.findAll()
                 .stream()
@@ -55,7 +56,7 @@ public class DepartmentService {
                 .collect(Collectors.toList());
     }
 
-//    @CacheEvict(value = "departments", allEntries = true)
+    @CacheEvict(value = "departments", allEntries = true)
     public DepartmentResponse updateDepartment(Long id, DepartmentRequest request){
         Department department = departmentRepo.findById(id)
                 .orElseThrow(()-> new ResourceNotFoundException(
@@ -69,12 +70,11 @@ public class DepartmentService {
         return mapToResponse(updated);
     }
 
-//    @CacheEvict(value = "departments", allEntries = true)
+    @CacheEvict(value = "departments", allEntries = true)
     public void deleteDepartment(Long id){
         Department department = departmentRepo.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException(
-                        "Department Not Found: "+ id
-                ));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Department not found with id: " + id));
         departmentRepo.delete(department);
     }
 
@@ -84,8 +84,8 @@ public class DepartmentService {
                 .name(department.getName())
                 .description(department.getDescription())
                 .location(department.getLocation())
-                .createdAt(department.getCreatedAt())
-                .updatedAt(department.getUpdatedAt())
+                .createdAt(department.getCreatedAt().toString())
+                .updatedAt(department.getUpdatedAt().toString())
                 .build();
     }
 

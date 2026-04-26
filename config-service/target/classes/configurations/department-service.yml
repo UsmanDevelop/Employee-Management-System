@@ -6,6 +6,11 @@ spring:
     username: owner_usman
     password: npg_jXyGo06JTYVS
     driver-class-name: org.postgresql.Driver
+  data:
+    redis:
+      host: redis-13261.c241.us-east-1-4.ec2.cloud.redislabs.com
+      port: 13261
+      password: HmpJlQlwWZTQIW4WQg5uoCyfiZFTUSxS
   jpa:
     hibernate:
       ddl-auto: update
